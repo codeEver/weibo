@@ -8,6 +8,17 @@ use Auth;
 
 class UsersController extends Controller
 {
+    //中间件过滤未注册请求
+    public function __construct()
+    {
+        $this->middleware('auth', [
+            'except' => ['show', 'create', 'store']
+        ]);
+        $this->middleware('guest', [
+            'only' => ['create']
+        ]);
+    }
+
     //用户注册，删除等
     public function create()
     {
@@ -40,11 +51,13 @@ class UsersController extends Controller
 
     public function edit(User $user)
     {
+        $this->authorize('update', $user);//授权
         return view('users.edit',compact('user'));
     }
 
     public function update(User $user, Request $request)
     {
+        $this->authorize('update', $user);//授权
         $this->validate($request,[
             'name' => 'required|max:50',
             'password' => 'nullable|confirmed|min:6'
